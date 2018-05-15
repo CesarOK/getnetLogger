@@ -1,13 +1,69 @@
 {
-
-    "number_token": "default",
-    "brand": "Mastercard",
+  "seller_id": "d3e530cb-6c4f-465d-87a2-290db7e701a5",
+  "amount": 10303,
+  "currency": "BRL",
+  "order": {
+    "order_id": "6d2e4380-d8a3-4ccb-9138-c289182818a3",
+    "sales_tax": 0,
+    "product_type": "service"
+    },
+  "customer": {
+    "customer_id": "asdasdasdadaada",
+    "first_name": "Joao",
+    "last_name": "da Silva",
+    "name": "Joao da Silva",
+    "email": "customer@email.com.br",
+    "document_type": "CPF",
+    "document_number": "12345678912",
+    "phone_number": "5551999887766",
+    "billing_address": {
+      "street": "Av. Brasil",
+      "number": "1000",
+      "complement": "Sala 1",
+      "district": "Sao Geraldo",
+      "city": "Porto Alegre",
+      "state": "RS",
+      "country": "Brasil",
+      "postal_code": "90230060"
+      }
+    },
+  "device": {
+    "ip_address": "127.0.0.1",
+    "device_id": "hash-device-id"
+    },
+  "shippings": [
+    {
+      "first_name": "Joao",
+      "name": "Joao da Silva",
+      "email": "customer@email.com.br",
+      "phone_number": "5551999887766",
+      "shipping_amount": 3000,
+      "address": {
+        "street": "Av. Brasil",
+        "number": "1000",
+        "complement": "Sala 1",
+        "district": "Sao Geraldo",
+        "city": "Porto Alegre",
+        "state": "RS",
+        "country": "Brasil",
+        "postal_code": "90230060"
+      }
+    }
+  ],
+  "credit": {
+    "delayed": false,
+    "authenticated": false,
+    "pre_authorization": false,
+    "save_card_data": false,
+    "transaction_type": "FULL",
+    "number_installments": 1,
+    "card": {
+    "number_token": "not received",
     "cardholder_name": "JOAO DA SILVA",
+    "security_code": "123",
+    "brand": "Mastercard",
     "expiration_month": "12",
-    "expiration_year": "20",
-    "customer_id": "customer_21081826",
-    "cardholder_identification": "12345678912",
-    "verify_card": false,
-    "security_code": "123"
-
+    "expiration_year": "20"
+    }
+  }
 }

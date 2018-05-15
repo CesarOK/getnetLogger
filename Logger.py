@@ -21,8 +21,9 @@ class getnet():
 		return data
 
 	def authenticate(self, client_id, client_secret):
-		curlBuffer = StringIO()
 		encodedB64 = base64.b64encode(client_id + ':' + client_secret)
+
+		curlBuffer = StringIO()
 		c = pycurl.Curl()
 		c.setopt(c.URL, self.url + '/auth/oauth/v2/token')
 		c.setopt(c.HTTPHEADER, ["Authorization: Basic {}".format(encodedB64), 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'])
@@ -48,14 +49,15 @@ class getnet():
 
 		decompressed = zlib.decompressobj(16+zlib.MAX_WBITS)
 		self.number_token = json.loads(decompressed.decompress(curlBuffer.getvalue()))['number_token']
+		curlBuffer.close()
 
 		pass
 
 
-	def post(self, seller_id, endpoint, payload):
+	def post(self, endpoint, payload):
+		payload = json.dumps(self.insertNumberToken(payload))
+		print payload
 
-		print self.insertNumberToken(payload)
-		exit()
 		curlBuffer = StringIO()
 		c = pycurl.Curl()
 		c.setopt(pycurl.URL, self.url + endpoint)
@@ -65,7 +67,10 @@ class getnet():
 		c.perform()
 		c.close()
 
-		pass
+		response = curlBuffer.getvalue()
+		curlBuffer.close()
+
+		return response
 
 client_id = "45bd882c-8321-42e1-ac53-feb8aaf071ea"
 client_secret = "ff491be0-fee7-4890-8c6a-7df85ac1a41e"
@@ -78,8 +83,10 @@ def touchGetnet(sc):
 	print "Doing stuff..."
 	api.authenticate(client_id, client_secret)
 	api.renewCardToken()
-	api.post(seller_id, '/v1/cards/verification', openJsonFile('card_verify.json'))
-	s.enter(5, 1, touchGetnet, (sc,))
+	print api.post('/v1/cards/verification', openJsonFile('card_verify.json'))
+	api.renewCardToken()
+	print api.post('/v1/payments/credit', openJsonFile('credit.json'))
+	s.enter(10, 1, touchGetnet, (sc,))
 
 s.enter(5, 1, touchGetnet, (s,))
 s.run()
