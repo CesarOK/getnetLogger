@@ -1,0 +1,13 @@
+{
+
+    "number_token": "default",
+    "brand": "Mastercard",
+    "cardholder_name": "JOAO DA SILVA",
+    "expiration_month": "12",
+    "expiration_year": "20",
+    "customer_id": "customer_21081826",
+    "cardholder_identification": "12345678912",
+    "verify_card": false,
+    "security_code": "123"
+
+}
