@@ -56,7 +56,7 @@
     "pre_authorization": false,
     "save_card_data": false,
     "transaction_type": "FULL",
-    "number_installments": 1,
+    "number_installments": 2,
     "card": {
     "number_token": "not received",
     "cardholder_name": "JOAO DA SILVA",
