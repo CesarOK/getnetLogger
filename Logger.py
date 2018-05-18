@@ -65,14 +65,19 @@ class getnet():
 
 		curlBuffer = StringIO()
 		headerBuffer = StringIO()
-		c = pycurl.Curl()
-		c.setopt(c.URL, self.url + '/auth/oauth/v2/token')
-		c.setopt(c.HTTPHEADER, ["Authorization: Basic {}".format(encodedB64), 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'])
-		c.setopt(c.WRITEHEADER, headerBuffer)
-		c.setopt(c.WRITEDATA, curlBuffer)
-		c.setopt(c.POSTFIELDS, 'scope=oob&grant_type=client_credentials')
-		c.perform()
-		c.close()
+		
+		try:
+			c = pycurl.Curl()
+			c.setopt(c.URL, self.url + '/auth/oauth/v2/token')
+			c.setopt(c.HTTPHEADER, ["Authorization: Basic {}".format(encodedB64), 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'])
+			c.setopt(c.WRITEHEADER, headerBuffer)
+			c.setopt(c.WRITEDATA, curlBuffer)
+			c.setopt(c.POSTFIELDS, 'scope=oob&grant_type=client_credentials')
+			c.perform()
+			c.close()
+			
+		except ValueError:
+			print "Problem runing curl"
 
 		self.auth_token = json.loads(curlBuffer.getvalue())['access_token']
 		curlBuffer.close()
@@ -82,14 +87,19 @@ class getnet():
 	def renewCardToken(self):
 		curlBuffer = StringIO()
 		headerBuffer = StringIO()
-		c = pycurl.Curl()
-		c.setopt(pycurl.URL, self.url + '/v1/tokens/card')
-		c.setopt(pycurl.HTTPHEADER, ["content-type: application/json", "Authorization: Bearer {}".format(self.auth_token)])
-		c.setopt(c.WRITEHEADER, headerBuffer)
-		c.setopt(c.WRITEDATA, curlBuffer)
-		c.setopt(pycurl.POSTFIELDS, '{"card_number": "5155901222280001"}')
-		c.perform()
-		c.close()
+		
+		try:
+			c = pycurl.Curl()
+			c.setopt(pycurl.URL, self.url + '/v1/tokens/card')
+			c.setopt(pycurl.HTTPHEADER, ["content-type: application/json", "Authorization: Bearer {}".format(self.auth_token)])
+			c.setopt(c.WRITEHEADER, headerBuffer)
+			c.setopt(c.WRITEDATA, curlBuffer)
+			c.setopt(pycurl.POSTFIELDS, '{"card_number": "5155901222280001"}')
+			c.perform()
+			c.close()
+			
+		except ValueError:
+			print "Problem runing curl"
 
 		if isGzip(headerBuffer.getvalue()):
 			decompressed = zlib.decompressobj(16+zlib.MAX_WBITS)
@@ -105,14 +115,19 @@ class getnet():
 
 		dataBuffer = StringIO()
 		headerBuffer = StringIO()
-		c = pycurl.Curl()
-		c.setopt(pycurl.URL, self.url + endpoint)
-		c.setopt(pycurl.HTTPHEADER, ["content-type: application/json", "Authorization: Bearer {}".format(self.auth_token)])
-		c.setopt(c.WRITEHEADER, headerBuffer)
-		c.setopt(c.WRITEDATA, dataBuffer)
-		c.setopt(pycurl.POSTFIELDS, payload)
-		c.perform()
-		c.close()
+
+		try:
+			c = pycurl.Curl()
+			c.setopt(pycurl.URL, self.url + endpoint)
+			c.setopt(pycurl.HTTPHEADER, ["content-type: application/json", "Authorization: Bearer {}".format(self.auth_token)])
+			c.setopt(c.WRITEHEADER, headerBuffer)
+			c.setopt(c.WRITEDATA, dataBuffer)
+			c.setopt(pycurl.POSTFIELDS, payload)
+			c.perform()
+			c.close()
+			
+		except ValueError:
+			print "Problem runing curl"
 
 		header = headerBuffer.getvalue()
 
