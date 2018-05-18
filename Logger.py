@@ -117,10 +117,10 @@ class getnet():
 		header = headerBuffer.getvalue()
 
 		if isGzip(headerBuffer.getvalue()):
-			decompressed = zlib.decompressobj(16+zlib.MAX_WBITS)
+			response = zlib.decompressobj(16+zlib.MAX_WBITS)
 			dataBuffer.close()
 			headerBuffer.close()
-			return json.loads(decompressed.decompress(curlBuffer.getvalue()))
+			return header, response
 
 		response = dataBuffer.getvalue()
 		dataBuffer.close()
