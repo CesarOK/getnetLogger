@@ -25,12 +25,14 @@ def is200(header):
 		return True
 	return False
 
+def is201(header):
+	header = header.split('\n')
+	if 'HTTP/1.1 201 Created\r' in header:
+		return True
+	return False
+
 def log(file_name, data):
 	file = open(file_name,'a')
-
-	if is200(data[0]):
-		file.close()
-		return
 
 	file.write("\n\n==========================================================\n")
 	file.write(str(datetime.datetime.now()))
@@ -63,7 +65,7 @@ class getnet():
 	def authenticate(self, client_id, client_secret):
 		encodedB64 = base64.b64encode(client_id + ':' + client_secret)
 
-		curlBuffer = StringIO()
+		dataBuffer = StringIO()
 		headerBuffer = StringIO()
 		
 		try:
@@ -71,21 +73,24 @@ class getnet():
 			c.setopt(c.URL, self.url + '/auth/oauth/v2/token')
 			c.setopt(c.HTTPHEADER, ["Authorization: Basic {}".format(encodedB64), 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'])
 			c.setopt(c.WRITEHEADER, headerBuffer)
-			c.setopt(c.WRITEDATA, curlBuffer)
+			c.setopt(c.WRITEDATA, dataBuffer)
 			c.setopt(c.POSTFIELDS, 'scope=oob&grant_type=client_credentials')
 			c.perform()
 			c.close()
 			
 		except ValueError:
 			print "Problem runing curl"
+			return
 
-		self.auth_token = json.loads(curlBuffer.getvalue())['access_token']
-		curlBuffer.close()
+		header = headerBuffer.getvalue()
+		response = dataBuffer.getvalue()
+		self.auth_token = json.loads(dataBuffer.getvalue())['access_token']
+		dataBuffer.close()
 		headerBuffer.close()
 		pass
 
 	def renewCardToken(self):
-		curlBuffer = StringIO()
+		dataBuffer = StringIO()
 		headerBuffer = StringIO()
 		
 		try:
@@ -93,21 +98,30 @@ class getnet():
 			c.setopt(pycurl.URL, self.url + '/v1/tokens/card')
 			c.setopt(pycurl.HTTPHEADER, ["content-type: application/json", "Authorization: Bearer {}".format(self.auth_token)])
 			c.setopt(c.WRITEHEADER, headerBuffer)
-			c.setopt(c.WRITEDATA, curlBuffer)
+			c.setopt(c.WRITEDATA, dataBuffer)
 			c.setopt(pycurl.POSTFIELDS, '{"card_number": "5155901222280001"}')
 			c.perform()
 			c.close()
 			
 		except ValueError:
 			print "Problem runing curl"
+			return
 
-		if isGzip(headerBuffer.getvalue()):
-			decompressed = zlib.decompressobj(16+zlib.MAX_WBITS)
-			self.number_token = json.loads(decompressed.decompress(curlBuffer.getvalue()))['number_token']
+		header = headerBuffer.getvalue()
 
-		curlBuffer.close()
+		if isGzip(header):
+			decompressor = zlib.decompressobj(16+zlib.MAX_WBITS)
+			response = decompressor.decompress(dataBuffer.getvalue())
+			self.number_token = json.loads(response)['number_token']
+			dataBuffer.close()
+			headerBuffer.close()
+			return header, response
+
+		response = dataBuffer.getvalue()
+		dataBuffer.close()
 		headerBuffer.close()
-		pass
+		return header, response
+		
 
 
 	def post(self, endpoint, payload):
@@ -128,11 +142,13 @@ class getnet():
 			
 		except ValueError:
 			print "Problem runing curl"
+			return
 
 		header = headerBuffer.getvalue()
 
 		if isGzip(headerBuffer.getvalue()):
-			response = zlib.decompressobj(16+zlib.MAX_WBITS)
+			decompressor = zlib.decompressobj(16+zlib.MAX_WBITS)
+			response = decompressor.decompress(dataBuffer.getvalue())
 			dataBuffer.close()
 			headerBuffer.close()
 			return header, response
@@ -145,12 +161,21 @@ class getnet():
 api = getnet('https://api-homologacao.getnet.com.br')
 s = sched.scheduler(time.time, time.sleep)
 
-def touchGetnet(sc): 
+def touchGetnet(sc):
+	print str(datetime.datetime.now())
 	api.authenticate(client_id, client_secret)
 	api.renewCardToken()
-	log('API_log', api.post('/v1/cards/verification', openJson('card_verify.json')))
+	
+	responseBuffer = api.post('/v1/cards/verification', openJson('card_verify.json'))
+	if not(is200(responseBuffer[0]) or is201(responseBuffer[0])):
+		log('API_log', responseBuffer)
+	
 	api.renewCardToken()
-	log('API_log', api.post('/v1/payments/credit', openJson('credit.json')))
+	
+	responseBuffer = api.post('/v1/payments/credit', openJson('credit.json'))
+	if not(is200(responseBuffer[0]) or is201(responseBuffer[0])):
+			log('API_log', responseBuffer)
+	
 	s.enter(150, 1, touchGetnet, (sc,))
 
 s.enter(5, 1, touchGetnet, (s,))
