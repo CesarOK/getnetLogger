@@ -80,6 +80,8 @@ class getnet():
 			
 		except ValueError:
 			print "Problem runing curl"
+			dataBuffer.close()
+			headerBuffer.close()
 			return
 
 		header = headerBuffer.getvalue()
@@ -105,6 +107,8 @@ class getnet():
 			
 		except ValueError:
 			print "Problem runing curl"
+			dataBuffer.close()
+			headerBuffer.close()
 			return
 
 		header = headerBuffer.getvalue()
@@ -142,6 +146,8 @@ class getnet():
 			
 		except ValueError:
 			print "Problem runing curl"
+			dataBuffer.close()
+			headerBuffer.close()
 			return
 
 		header = headerBuffer.getvalue()
